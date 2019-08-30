@@ -1,20 +1,39 @@
-node {
-    stage('Cleanup') {
-        step([$class: 'WsCleanup'])
-    }
-    stage('Checkout SCM') {
-        checkout scm
-    }
-    def pythonImage
-    stage('build docker image') {
-        pythonImage = docker.build("maxsum:build")
-    }
-    stage('test') {
-        pythonImage.inside {
-            bat '. /tmp/venv/bin/activate && python -m pytest --junitxml=build/results.xml'
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying'
+            }
         }
     }
-    stage('collect test results') {
-        junit 'build/results.xml'
+    post {
+        always {
+            echo 'This will always run'
+        }
+        success {
+            echo 'This will run only if successful'
+        }
+        failure {
+            echo 'This will run only if failed'
+        }
+        unstable {
+            echo 'This will run only if the run was marked as unstable'
+        }
+        changed {
+            echo 'This will run only if the state of the Pipeline has changed'
+            echo 'For example, if the Pipeline was previously failing but is now successful'
+        }
     }
 }
